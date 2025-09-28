@@ -1,15 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/is-authenticated/`, {
+      credentials: 'include',
+  }).then((res) => res.json())
+    .then((data) => {
+      setIsAuthenticated(data.status);
+    });
+  }, [])
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
+        <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank">
@@ -18,9 +28,15 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+        {isAuthenticated ? (
+          <p>You are logged in! Next step: Fetch playlists.</p>
+        ) : (
+          <a href={`${API_BASE_URL}/api/login/`}>
+            <button>
+              Login with Spotify
+            </button>
+          </a>
+        )}
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
