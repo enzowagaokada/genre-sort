@@ -5,47 +5,69 @@ import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/is-authenticated/`, {
       credentials: 'include',
   }).then((res) => res.json())
     .then((data) => {
       setIsAuthenticated(data.status);
+    })
+    .catch(() => {
+      setIsAuthenticated(false);
+    })
+    .finally(() => {
+      setIsLoading(false);
     });
   }, [])
 
+  const handleFetchPlaylists = () => {
+    // TODO: Implement playlist fetching logic
+    alert('Playlist fetching not implemented yet!');
+  };
+
+  if (isLoading) {
+    return <div className="container">Loading...</div>;
+  }
+
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
+    <div className="container">
+      <header>
+        <h1>GenreSort for Spotify</h1>
+        <p className="subtitle">Sort your saved playlists by genre.</p>
+      </header>
+
+      <main className="card">
         {isAuthenticated ? (
-          <p>You are logged in! Next step: Fetch playlists.</p>
-        ) : (
-          <a href={`${API_BASE_URL}/api/login/`}>
-            <button>
-              Login with Spotify
+          <div>
+            <h2>You are logged in!</h2>
+            <p>Ready to sort your playlists? Click the button below to get started.</p>
+            <button onClick={handleFetchPlaylists}>
+              Fetch My Playlists
             </button>
-          </a>
+          </div>
+        ) : (
+          <div>
+            <h2>Welcome!</h2>
+            <p>Please log in with your Spotify account to continue.</p>
+            <a href={`${API_BASE_URL}/api/login/`}>
+              <button>
+                Login with Spotify
+              </button>
+            </a>
+          </div>
         )}
+      </main>
+      <footer>
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          Powered by the Spotify Web API.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
