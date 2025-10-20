@@ -1,0 +1,81 @@
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.playlist-card {
+  position: relative;
+  padding: 1rem;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.playlist-card:hover {
+  border-color: #1DB954;
+  transform: translateY(-4px);
+}
+
+.playlist-card.selected {
+  border-color: #1DB954;
+  background-color: #1a3a25;
+}
+
+.playlist-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.playlist-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.playlist-info p {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.check-mark {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background-color: #1DB954;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+button.secondary {
+  background-color: #3a3a3a;
+}
+
+button.secondary:hover {
+  border-color: #888;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

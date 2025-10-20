@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -7,6 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
   
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/is-authenticated/`, {
@@ -24,8 +26,7 @@ function App() {
   }, [])
 
   const handleFetchPlaylists = () => {
-    // TODO: Implement playlist fetching logic
-    alert('Playlist fetching not implemented yet!');
+    navigate('/playlists');
   };
 
   if (isLoading) {
