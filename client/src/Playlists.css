@@ -79,3 +79,13 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.loading-message {
+    text-align: center;
+    color: #1db954;
+}
+
+.loading-message h2 {
+    color: #1db954;
+    margin-bottom: 1rem;
+}

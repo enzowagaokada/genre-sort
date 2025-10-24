@@ -38,7 +38,7 @@ function App() {
       {/* Home Page */}
       <div className="container">
         <header>
-          <h1>Genre Sort for Spotify</h1>
+          <h1>Genre Sort  </h1>
           <p className="subtitle">Sort your saved playlists by genre.</p>
         </header>
 

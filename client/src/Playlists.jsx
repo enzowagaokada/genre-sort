@@ -50,7 +50,9 @@ function Playlists() {
   };
 
   if (isLoading) {
-    return <div className="container">Loading your playlists...</div>;
+    return <div className="loading-message">
+            <h2>Loading your playlists...</h2>
+          </div>;
   }
 
   if (error) {

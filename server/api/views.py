@@ -124,13 +124,7 @@ class SortPlaylistByGenreView(APIView):
                 artists = sp.artists(batch)['artists']
                 for artist in artists:
                     artist_genres_map[artist['id']] = artist.get('genres', [])
-                    if 'polo' in artist['name'].lower():
-                        print(f"DEBUG - Artist: {artist['name']}")
-                        print(f"DEBUG - Artist ID: {artist['id']}")
-                        print(f"DEBUG - Genres: {artist.get('genres', [])}")
-                        print(f"DEBUG - Full artist data: {artist}")
-                        print("---")
-                
+
                 # Add a small delay to avoid rate limiting
                 time.sleep(0.1)
             except Exception as e:
@@ -148,7 +142,8 @@ class SortPlaylistByGenreView(APIView):
             track_info = {
                 'name': track['name'],
                 'artist': track['artists'][0]['name'],
-                'uri': track['uri']
+                'uri': track['uri'],
+                'image' : track['album']['images'][0]['url'] if track['album'].get('images') else None
             }
 
             #If artist does not have a genre, add to unknown
@@ -215,3 +210,200 @@ class CreateGenrePlaylistView(APIView):
             'track_count': len(track_uris)
         })
 
+class AssignGenreToTrackView(APIView):
+    def post(self, request, *args, **kwargs):
+        """
+        Assign a genre to a specific track, moving it from its current genre
+        """
+        token_info = request.session.get('spotify_token_info', None)
+        
+        if not token_info:
+            return Response({'error': 'Not authenticated'}, status=401)
+        
+        playlist_id = request.data.get('playlist_id')
+        track_uri = request.data.get('track_uri')
+        new_genre = request.data.get('genre')
+        current_genre = request.data.get('current_genre')  # Add this
+        
+        if not all([playlist_id, track_uri, new_genre]):
+            return Response({'error': 'Missing required fields'}, status=400)
+        
+        # Get the sorted tracks from session
+        sorted_tracks = request.session.get(f'sorted_tracks_{playlist_id}', {})
+        
+        if not sorted_tracks:
+            return Response({'error': 'No sorted tracks found'}, status=404)
+        
+        # Find and remove the track from its current genre
+        track_to_move = None
+        if current_genre and current_genre in sorted_tracks:
+            for i, track in enumerate(sorted_tracks[current_genre]):
+                if track['uri'] == track_uri:
+                    track_to_move = sorted_tracks[current_genre].pop(i)
+                    break
+        
+        # If not found in specified genre, search all genres
+        if not track_to_move:
+            for genre, tracks in sorted_tracks.items():
+                for i, track in enumerate(tracks):
+                    if track['uri'] == track_uri:
+                        track_to_move = tracks.pop(i)
+                        break
+                if track_to_move:
+                    break
+        
+        if not track_to_move:
+            return Response({'error': 'Track not found'}, status=404)
+        
+        # Add to new genre
+        if new_genre not in sorted_tracks:
+            sorted_tracks[new_genre] = []
+        
+        # Check for duplicates
+        if not any(track['uri'] == track_uri for track in sorted_tracks[new_genre]):
+            sorted_tracks[new_genre].append(track_to_move)
+        
+        # Update session
+        request.session[f'sorted_tracks_{playlist_id}'] = sorted_tracks
+        request.session.modified = True
+        
+        return Response({
+            'success': True,
+            'message': f'Track moved to {new_genre}',
+            'genre_groups': sorted_tracks
+        })
+    
+class CombineGenresView(APIView):
+    def post(self, request, *args, **kwargs):
+        """
+        Combine multiple genres into one
+        """
+        token_info = request.session.get('spotify_token_info', None)
+        
+        if not token_info:
+            return Response({'error': 'Not authenticated'}, status=401)
+        
+        playlist_id = request.data.get('playlist_id')
+        genres_to_combine = request.data.get('genres', [])
+        
+        if not playlist_id:
+            return Response({'error': 'Missing playlist_id'}, status=400)
+        
+        if len(genres_to_combine) < 2:
+            return Response({'error': 'Need at least 2 genres to combine'}, status=400)
+        
+        # Get stored genre data from session
+        session_key = f'sorted_tracks_{playlist_id}'
+        sorted_tracks = request.session.get(session_key, {})
+        
+        if not sorted_tracks:
+            return Response({'error': 'No genre data found'}, status=404)
+        
+        # Combine tracks from selected genres
+        seen_uris = set()
+        combined_tracks = []
+
+        for genre in genres_to_combine:
+            if genre in sorted_tracks:
+                for track in sorted_tracks[genre]:
+                    # Only add track if we haven't seen this URI before
+                    if track['uri'] not in seen_uris:
+                        combined_tracks.append(track)
+                        seen_uris.add(track['uri'])
+                # Remove the old genre
+                del sorted_tracks[genre]
+        
+        if not combined_tracks:
+            return Response({'error': 'No tracks found in selected genres'}, status=404)
+        
+        # Create new combined genre name
+        combined_genre_name = ' + '.join(sorted(genres_to_combine))
+        
+        # Add combined genre with all tracks
+        sorted_tracks[combined_genre_name] = combined_tracks
+        
+        # Update session
+        request.session[session_key] = sorted_tracks
+        request.session.modified = True
+        
+        return Response({
+            'success': True,
+            'genre_groups': sorted_tracks,
+            'combined_genre_name': combined_genre_name,
+            'total_tracks': len(combined_tracks),
+            'duplicates_removed': sum(len(sorted_tracks.get(g, [])) for g in genres_to_combine) - len(combined_tracks)
+        })
+
+class AssignGenreByArtistView(APIView):
+    def post(self, request, *args, **kwargs):
+        """
+        Assign a genre to all tracks by a specific artist from any genre
+        """
+        token_info = request.session.get('spotify_token_info', None)
+        
+        if not token_info:
+            return Response({'error': 'Not authenticated'}, status=401)
+        
+        playlist_id = request.data.get('playlist_id')
+        artist_name = request.data.get('artist_name')
+        new_genre = request.data.get('genre')
+        current_genre = request.data.get('current_genre')  # Optional: for optimization
+        
+        if not all([playlist_id, artist_name, new_genre]):
+            return Response({'error': 'Missing required fields'}, status=400)
+        
+        # Get the sorted tracks from session
+        sorted_tracks = request.session.get(f'sorted_tracks_{playlist_id}', {})
+        
+        if not sorted_tracks:
+            return Response({'error': 'No tracks found'}, status=404)
+        
+        tracks_moved = 0
+        
+        # Search through all genres (or just the current one if specified)
+        genres_to_search = [current_genre] if current_genre and current_genre in sorted_tracks else sorted_tracks.keys()
+        
+        for genre in list(genres_to_search):
+            if genre == new_genre:  # Skip the target genre
+                continue
+                
+            if genre not in sorted_tracks:
+                continue
+                
+            tracks_to_move = []
+            remaining_tracks = []
+            
+            for track in sorted_tracks[genre]:
+                if track['artist'].lower() == artist_name.lower():
+                    tracks_to_move.append(track)
+                else:
+                    remaining_tracks.append(track)
+            
+            # Update the current genre
+            sorted_tracks[genre] = remaining_tracks
+            
+            # Add tracks to new genre
+            if new_genre not in sorted_tracks:
+                sorted_tracks[new_genre] = []
+            
+            # Check for duplicates before adding
+            existing_uris = {track['uri'] for track in sorted_tracks[new_genre]}
+            for track in tracks_to_move:
+                if track['uri'] not in existing_uris:
+                    sorted_tracks[new_genre].append(track)
+                    existing_uris.add(track['uri'])
+                    tracks_moved += 1
+        
+        if tracks_moved == 0:
+            return Response({'error': f'No tracks by {artist_name} found'}, status=404)
+        
+        # Update session
+        request.session[f'sorted_tracks_{playlist_id}'] = sorted_tracks
+        request.session.modified = True
+        
+        return Response({
+            'success': True,
+            'message': f'Moved {tracks_moved} tracks by {artist_name} to {new_genre}',
+            'tracks_moved': tracks_moved,
+            'genre_groups': sorted_tracks
+        })            
