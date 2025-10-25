@@ -42,13 +42,20 @@ class IsAuthenticatedView(APIView):
 
         if not token_info:
             return Response({'status': False})
-        #validate token
+        # Validate token
         oauth = get_spotify_oauth()
         token_info = oauth.validate_token(token_info)
 
         if token_info:
             request.session['spotify_token_info'] = token_info
-            return Response({'status': True})
+            # Get user's name and profile picture
+            sp = spotipy.Spotify(auth=token_info['access_token'])
+            user_info = sp.current_user()
+            user_data = {
+                'name': user_info.get('display_name', 'User'),
+                'image_url': user_info['images'][0]['url'] if user_info.get('images') else None
+            }
+            return Response({'status': True, 'user': user_data})
         else:
             return Response({'status': False})
 
@@ -150,9 +157,11 @@ class SortPlaylistByGenreView(APIView):
             if not artist_genres:
                 genre_groups['unknown'].append(track_info)
             else:
-                #Add track to each genre the artist belongs to
-                for genre in artist_genres:
-                    genre_groups[genre].append(track_info)
+                #Add track to the first genre the artist belongs to
+                primary_genre = artist_genres[0]
+                genre_groups[primary_genre].append(track_info)
+                # for genre in artist_genres:
+                #     genre_groups[genre].append(track_info)
             
         # Convert defaultdict to regular dict for JSON serialization
         genre_groups = dict(genre_groups)

@@ -113,9 +113,19 @@
     padding: 1.5rem;
 }
 
+.uncategorized-info {
+    font-size: 0.85em;
+    color: #aaa;
+    padding: 0 15px 10px;
+    margin: 0;
+}
+
 .tracks-scrollable {
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+    margin-right: -10px;
 }
 
 .track-full-item {

@@ -223,7 +223,7 @@ function Sort () {
         <div className="container">
 
             <header className="sort-header">
-                <h1>Sorted by Genre</h1>
+                <h1>Tracks by Genre</h1>
                 <p className="subtitle">
                     Found {genreEntries.length} genres with {Object.values(genreGroups).flat().length} total tracks
                 </p>
@@ -265,12 +265,17 @@ function Sort () {
                                         className="genre-checkbox"
                                     />
                                 )}
-                                {genre}
+                                {genre === 'unknown' ? 'Uncategorized' : genre}
                             </h3>
                             <span className="track-count">{tracks.length} tracks</span>
                         </div>
                         
                         <div className="genre-card-body">
+                            {genre === 'unknown' && (
+                                <p className="uncategorized-info">
+                                    These tracks don't have an assigned genre. Click on a track to assign it to an existing or new genre.
+                                </p>
+                            )}
                             <div className="tracks-scrollable">
                                 {tracks.map((track, index) => (
                                     <div 

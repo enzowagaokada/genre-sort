@@ -7,6 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
   
@@ -16,6 +17,9 @@ function App() {
   }).then((res) => res.json())
     .then((data) => {
       setIsAuthenticated(data.status);
+      if (data.status) {
+        setUser(data.user);
+      }
     })
     .catch(() => {
       setIsAuthenticated(false);
@@ -39,13 +43,14 @@ function App() {
       <div className="container">
         <header>
           <h1>Genre Sort  </h1>
-          <p className="subtitle">Sort your saved playlists by genre.</p>
+          <p className="subtitle">Sort your playlists by genre.</p>
         </header>
 
         <main className="card">
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <div>
-              <h2>You are logged in!</h2>
+              {user.image_url && <img src={user.image_url} alt="User profile" className="profile-pic" />}
+              <h2>Hi, {user.name}!</h2>
               <p>Ready to sort your playlists? Click the button below to get started.</p>
               <button onClick={handleFetchPlaylists}>
                 Fetch My Playlists
@@ -64,8 +69,9 @@ function App() {
           )}
         </main>
         <footer>
+            Created by <a href="https://github.com/enzowagaokada" target="_blank" rel="noopener noreferrer">Enzo Waga Okada</a>
           <p>
-            Powered by the Spotify Web API.
+            Powered by the <a href="https://developer.spotify.com/" target="_blank" rel="noopener noreferrer">Spotify Web API</a>.
           </p>
         </footer>
       </div>

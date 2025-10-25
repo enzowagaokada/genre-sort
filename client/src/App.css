@@ -11,14 +11,24 @@
   gap: 2rem;
 }
 
+.profile-pic {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  object-fit: cover;
+}
+
 .subtitle {
   color: #888;
 }
 
 .card {
-  padding: 2em;
+  padding: 5em;
   border: 1px solid #3a3a3a;
   background-color: #1a1a1a;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(96, 100, 96, 0.3), 0 10px 20px rgba(104, 109, 104, 0.2)
 }
 
 footer {
@@ -27,6 +37,7 @@ footer {
   color: #888;
 }
 
+/* Button */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -37,12 +48,21 @@ button {
   background-color: #1DB954; /* Spotify Green */
   color: #ffffff;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s ease;
 }
+
 button:hover {
   border-color: #1ED760;
+  transform: translateY(-4px);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+footer a {
+  color: #1DB954;
+}
+
+
