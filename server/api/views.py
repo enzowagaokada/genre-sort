@@ -9,7 +9,8 @@ from collections import defaultdict
 
 SCOPE = "playlist-read-private playlist-modify-public playlist-modify-private"
 
-REDIRECT_URI = "http://127.0.0.1:8000/api/callback/"
+REDIRECT_URI = os.environ.get('REDIRECT_URI')
+CLIENT_URL = os.environ.get('CLIENT_URL')
 
 def get_spotify_oauth():
     return SpotifyOAuth(
@@ -32,7 +33,7 @@ class SpotifyCallbackView(APIView):
             token_info = oauth.get_access_token(code)
             #store token info in session
             request.session['spotify_token_info'] = token_info
-            return redirect('http://127.0.0.1:5173')
+            return redirect(CLIENT_URL)
         else:
             return Response({"error": "Authorization code not found."}, status=400)
 
