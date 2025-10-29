@@ -17,7 +17,7 @@ function Playlists() {
 
   const fetchPlaylists = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/playlists/`, {
+      const response = await fetch(`${API_BASE_URL}api/playlists/`, {
         credentials: 'include',
       });
       

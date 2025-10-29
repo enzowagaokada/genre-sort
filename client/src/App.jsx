@@ -12,7 +12,7 @@ function App() {
   const navigate = useNavigate()
   
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/is-authenticated/`, {
+    fetch(`${API_BASE_URL}api/is-authenticated/`, {
       credentials: 'include',
   }).then((res) => res.json())
     .then((data) => {
@@ -60,7 +60,7 @@ function App() {
             <div>
               <h2>Welcome!</h2>
               <p>Please log in with your Spotify account to continue.</p>
-              <a href={`${API_BASE_URL}/api/login/`}>
+              <a href={`${API_BASE_URL}api/login/`}>
                 <button>
                   Login with Spotify
                 </button>

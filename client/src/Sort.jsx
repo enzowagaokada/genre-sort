@@ -35,7 +35,7 @@ function Sort () {
     const fetchAndSortTracks = async () => {
         try {
             const response = await fetch (
-                `${API_BASE_URL}/api/sort-playlist/${playlistId}/`,
+                `${API_BASE_URL}api/sort-playlist/${playlistId}/`,
                 {
                     credentials: 'include',
                 });
@@ -56,7 +56,7 @@ function Sort () {
         setCreatingPlaylist(genre);
         try {
             const response = await fetch(
-                `${API_BASE_URL}/api/create-playlist/`,
+                `${API_BASE_URL}api/create-playlist/`,
                 {
                     method: 'POST',
                     headers: {
@@ -84,7 +84,7 @@ function Sort () {
 
     const assignGenreToTrack = async (trackUri, newGenre, currentGenre) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/assign-genre/`, {
+            const response = await fetch(`${API_BASE_URL}api/assign-genre/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ function Sort () {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/combine-genres/`, {
+            const response = await fetch(`${API_BASE_URL}api/combine-genres/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ function Sort () {
 
     const assignGenreByArtist = async (artistName, newGenre, currentGenre) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/assign-genre-by-artist/`, {
+            const response = await fetch(`${API_BASE_URL}api/assign-genre-by-artist/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
