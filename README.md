@@ -24,3 +24,7 @@ Some artists in the API don't have any assigned genres, so I have put these cert
 From there, you can add these songs into an existing genre playlist or add it to a new one.
 
 Keep in mind, this app is limited under Development Mode in Spotify Web API so I am restricted to only 25 inserted users for authentification
+
+![Login Page](./images/homepage.png)
+![Playlist View](./images/playlists.png)
+![Sorted Playlist](./images/sortedplaylists.png)
