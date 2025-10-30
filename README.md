@@ -22,3 +22,5 @@ A track's data does not contain a genre, therefore, I assigned each track a genr
 
 Some artists in the API don't have any assigned genres, so I have put these certain tracks in the **"Uncategorized"** playlist.
 From there, you can add these songs into an existing genre playlist or add it to a new one.
+
+Keep in mind, this app is limited under Development Mode in Spotify Web API so I am restricted to only 25 inserted users for authentification
