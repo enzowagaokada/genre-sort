@@ -22,6 +22,8 @@ def get_spotify_oauth():
 
 class SpotifyLoginView(APIView):
     def get(self, request, *args, **kwargs):
+        # reset session to ensure new user data
+        request.session.flush()
         auth_url = get_spotify_oauth().get_authorize_url()
         return redirect(auth_url)
     
