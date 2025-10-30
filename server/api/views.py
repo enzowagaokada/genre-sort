@@ -12,12 +12,13 @@ SCOPE = "playlist-read-private playlist-modify-public playlist-modify-private"
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
 CLIENT_URL = os.environ.get('CLIENT_URL')
 
-def get_spotify_oauth():
+def get_spotify_oauth(token_info=None):
     return SpotifyOAuth(
         client_id=os.environ.get('SPOTIFY_CLIENT_ID'),
         client_secret=os.environ.get('SPOTIFY_CLIENT_SECRET'),
         redirect_uri=REDIRECT_URI,
-        scope=SCOPE
+        scope=SCOPE,
+        cache_handler=spotipy.MemoryCacheHandler(token_info=token_info)
     )
 
 class SpotifyLoginView(APIView):
@@ -32,7 +33,7 @@ class SpotifyCallbackView(APIView):
         oauth = get_spotify_oauth()
         code = request.GET.get('code')
         if code:
-            token_info = oauth.get_access_token(code)
+            token_info = oauth.get_access_token(code, as_dict=True, check_cache=False)
             #store token info in session
             request.session['spotify_token_info'] = token_info
             return redirect(CLIENT_URL)
@@ -46,8 +47,8 @@ class IsAuthenticatedView(APIView):
         if not token_info:
             return Response({'status': False})
         # Validate token
-        oauth = get_spotify_oauth()
-        token_info = oauth.validate_token(token_info)
+        oauth = get_spotify_oauth(token_info)
+        token_info = oauth.validate_token(oauth.get_cached_token())
 
         if token_info:
             request.session['spotify_token_info'] = token_info
